@@ -1,4 +1,4 @@
-import { TabConfig } from '@/types/tabs';
+import { TabConfig } from '@/types/Tabs.types';
 
 export const TABS: TabConfig[] = [
   { id: 'file', label: 'File' },

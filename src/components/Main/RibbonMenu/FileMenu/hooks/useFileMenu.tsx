@@ -1,6 +1,6 @@
 'use client';
 
-import { SaveButtonState } from '@/types/SaveButtonStates';
+import { SaveButtonState } from '@/types/SaveButtonStates.types';
 import { useAppContext } from '@/contexts/AppContext';
 import { useCallback, useMemo } from 'react';
 
