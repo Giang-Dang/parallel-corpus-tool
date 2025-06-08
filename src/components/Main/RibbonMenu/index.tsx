@@ -35,8 +35,8 @@ export default function RibbonMenu() {
             }}
             className={`relative min-w-0 flex-shrink-0 px-4 py-3 text-sm font-medium whitespace-nowrap transition-all duration-200 sm:px-8 ${
               activeTab === tab.id
-                ? 'border-2 border-blue-500 bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:bg-white/50 hover:text-gray-900'
+                ? 'border-b-3 border-blue-500 bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:bg-white/200 hover:text-gray-900'
             }`}
           >
             {tab.label}
@@ -67,11 +67,7 @@ export default function RibbonMenu() {
       {/* Bottom Collapse Toggle Bar */}
       <button
         onClick={toggleCollapse}
-        className={`group relative w-full transition-all duration-300 ease-out ${
-          isCollapsed
-            ? 'h-8 border-t border-blue-200 bg-gradient-to-r from-blue-50 to-blue-50/70 hover:from-blue-100 hover:to-blue-100/80'
-            : 'h-8 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-gray-50/70 hover:from-gray-100 hover:to-gray-100/80'
-        }`}
+        className={`group relative h-8 w-full border-t border-gray-200 bg-gradient-to-r from-gray-50 to-gray-50/70 transition-all duration-300 ease-out hover:from-gray-100 hover:to-gray-100/80`}
         aria-label={isCollapsed ? 'Expand ribbon menu' : 'Collapse ribbon menu'}
         title={`${isCollapsed ? 'Expand' : 'Collapse'} ribbon (Ctrl+F1)`}
       >
@@ -84,9 +80,7 @@ export default function RibbonMenu() {
           >
             {/* Icon */}
             <svg
-              className={`transition-all duration-300 ${
-                isCollapsed ? 'h-4 w-4 text-blue-600' : 'h-4 w-4 text-gray-600'
-              }`}
+              className={`h-4 w-4 text-blue-600 transition-all duration-300`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -101,9 +95,7 @@ export default function RibbonMenu() {
 
             {/* Text labels for both states */}
             <span
-              className={`hidden text-xs font-medium transition-all duration-200 sm:block ${
-                isCollapsed ? 'text-blue-700' : 'text-gray-700'
-              }`}
+              className={`hidden text-xs font-medium text-blue-700 transition-all duration-200 sm:block`}
             >
               {isCollapsed ? 'Click to expand' : 'Click to collapse'}
             </span>
@@ -112,11 +104,7 @@ export default function RibbonMenu() {
 
         {/* Hover indicator line */}
         <div
-          className={`absolute top-0 left-1/2 -translate-x-1/2 transform transition-all duration-200 ${
-            isCollapsed
-              ? 'h-0.5 w-16 bg-blue-500 opacity-0 group-hover:opacity-60'
-              : 'h-0.5 w-16 bg-gray-500 opacity-0 group-hover:opacity-60'
-          }`}
+          className={`absolute top-0 left-1/2 h-0.5 w-24 -translate-x-1/2 transform bg-blue-500 opacity-0 transition-all duration-200 group-hover:opacity-60`}
         />
       </button>
     </div>

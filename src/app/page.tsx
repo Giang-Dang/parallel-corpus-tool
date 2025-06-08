@@ -2,11 +2,14 @@
 
 import Main from '@/components/Main';
 import { AppProvider } from '@/contexts/AppContext';
+import { PopupContextProvider } from '@/contexts/PopupContext';
 
 export default function Home() {
   return (
     <AppProvider>
-      <Main />
+      <PopupContextProvider>
+        <Main />
+      </PopupContextProvider>
     </AppProvider>
   );
 }
