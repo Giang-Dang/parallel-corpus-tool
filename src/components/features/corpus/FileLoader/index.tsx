@@ -1,20 +1,30 @@
 'use client';
 
-import MultipleFilesConfirmationDialog from './components/LanguageConfirmationDialog';
+import { FileDropZone } from '@/components/ui/FileDropZone';
+import MultipleFilesConfirmationDialog from '../../../ui/Dialog/LanguageConfirmationDialog';
 import useFileLoaderAction from './hooks/useFileLoaderAction';
+import { useDragAndDrop } from '@/hooks/useDragAndDrop';
+import ErrorDialog from '@/components/ui/Dialog/ErrorDialog';
+import { useAppContext } from '@/contexts/AppContext';
+import ProgressDisplay from '@/components/ui/ProgressDisplay';
 
 export default function FileLoader() {
   const {
     isLoading,
     error,
-    handleFileSelection,
     onClose,
-    showLanguageConfirmation,
-    setShowLanguageConfirmation,
     processFiles,
     progressedLines,
     totalLines,
+    handleFileDrop,
+    handleBrowseClick,
+    fileInputRef,
+    handleFileSelect,
   } = useFileLoaderAction();
+
+  const { selectedFileGroup } = useAppContext();
+
+  const { isDragOver, handleDragOver, handleDragLeave } = useDragAndDrop();
 
   return (
     <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
@@ -33,27 +43,33 @@ export default function FileLoader() {
             </svg>
           </button>
         </div>
-        <MultipleFilesConfirmationDialog onConfirm={processFiles} />
+        <MultipleFilesConfirmationDialog
+          selectedFileGroup={selectedFileGroup}
+          onConfirm={processFiles}
+        />
         {error && <ErrorDialog errorMessage={error} />}
         {isLoading ? (
-          <ProgressDisplay
-            totalFiles={totalFiles}
-            processedFiles={processedFiles}
-            onCancel={handleCancel}
-          />
+          <ProgressDisplay totalLines={totalLines} progressedLines={progressedLines} />
         ) : (
-          <FileDropZone onFileDrop={handleFileDrop} />
+          <FileDropZone
+            isDragOver={isDragOver}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleFileDrop}
+            onBrowseClick={handleBrowseClick}
+          />
         )}
 
         {/* File input */}
         <input
+          ref={fileInputRef}
           className="hidden"
           title="Select corpus files (max 2)"
           aria-label="Select corpus files (max 2)"
           type="file"
           accept=".txt,.csv"
           multiple
-          onChange={handleFileSelection}
+          onChange={handleFileSelect}
         />
       </div>
     </div>

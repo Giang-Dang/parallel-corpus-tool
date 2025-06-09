@@ -1,5 +1,5 @@
 import { usePopupContext } from '@/contexts/PopupContext';
-import FileLoader from '../FileLoader';
+import FileLoader from '../../features/corpus/FileLoader';
 
 export default function Popups() {
   const { isOpen, currentPopup } = usePopupContext();

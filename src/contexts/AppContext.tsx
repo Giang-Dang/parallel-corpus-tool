@@ -1,5 +1,6 @@
 'use client';
 
+import { FileGroup } from '@/types/data.types';
 import { createContext, useContext, useMemo, useState } from 'react';
 
 interface AppContextType {
@@ -11,6 +12,8 @@ interface AppContextType {
   setHasChangesInDataTable: (value: boolean) => void;
   changesCount: number;
   setChangesCount: (value: number) => void;
+  selectedFileGroup: FileGroup;
+  setSelectedFileGroup: (value: FileGroup) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -28,6 +31,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [activeTab, setActiveTab] = useState('file');
   const [hasChangesInDataTable, setHasChangesInDataTable] = useState(false);
   const [changesCount, setChangesCount] = useState(0);
+  const [selectedFileGroup, setSelectedFileGroup] = useState<FileGroup>({
+    baseName: '',
+    files: [],
+  });
 
   const value: AppContextType = useMemo(
     () => ({
@@ -39,8 +46,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       setHasChangesInDataTable,
       changesCount,
       setChangesCount,
+      selectedFileGroup,
+      setSelectedFileGroup,
     }),
-    [isEditMode, activeTab, hasChangesInDataTable, changesCount],
+    [isEditMode, activeTab, hasChangesInDataTable, changesCount, selectedFileGroup],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
