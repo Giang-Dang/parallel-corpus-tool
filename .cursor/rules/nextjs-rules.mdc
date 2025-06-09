@@ -1,0 +1,41 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: NextJS Rules
+globs: 
+alwaysApply: true
+---
+- MUST DO: ALWAYS FOLLOW THE BEST PRACTICES TO IMPLEMENT ANY FEATURE OR RESOLVE ANY PROBLEM. 
+
+## Code Quality
+- Prioritize correctness; strict TypeScript (no `any`)
+- Functions <30 lines; use pure helpers and early returns
+- Fix all lint errors before committing
+- Use useCallback, useMemo to optimise code based on best practices
+- Use useContext to prevent props drilling
+- Always try the popular and well-maintained package to solve the problem first.
+
+## File Structure
+- PascalCase components/classes; kebab-case for app/page routes
+- Single default export per file; CSS Modules only
+- Break large components into smaller, focused pieces
+
+## Naming & Style
+- camelCase variables/functions; UPPERCASE env vars
+- Use `const` for literals; descriptive variable names
+- Self-documenting code; comment only complex logic or "why" decisions
+
+## Development
+- Incremental edits over bulk changes
+- Use PowerShell for terminal commands
+
+
+- Auto-apply style rules without prompting

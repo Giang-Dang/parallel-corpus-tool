@@ -112,4 +112,144 @@ export const COUNTRY_TO_LANGUAGE: Record<string, string> = {
   // Special Cases
   EU: 'eo', // European Union -> Esperanto
   VA: 'la', // Vatican -> Latin
-};
+} as const;
+
+export const LANGUAGES = {
+  // Major World Languages
+  en: "English",
+  zh: "Chinese",
+  hi: "Hindi",
+  es: "Spanish",
+  fr: "French",
+  ar: "Arabic",
+  bn: "Bengali",
+  ru: "Russian",
+  pt: "Portuguese",
+  id: "Indonesian",
+  ur: "Urdu",
+  de: "German",
+  ja: "Japanese",
+  sw: "Swahili",
+  mr: "Marathi",
+  te: "Telugu",
+  tr: "Turkish",
+  ta: "Tamil",
+  vn: "Vietnamese",
+  ko: "Korean",
+  it: "Italian",
+  th: "Thai",
+  gu: "Gujarati",
+  pl: "Polish",
+  uk: "Ukrainian",
+  ml: "Malayalam",
+  kn: "Kannada",
+  or: "Odia",
+  pa: "Punjabi",
+  ro: "Romanian",
+  nl: "Dutch",
+  hu: "Hungarian",
+  cs: "Czech",
+  sv: "Swedish",
+  be: "Belarusian",
+  el: "Greek",
+  he: "Hebrew",
+  fi: "Finnish",
+  no: "Norwegian",
+  da: "Danish",
+  bg: "Bulgarian",
+  hr: "Croatian",
+  sk: "Slovak",
+  sl: "Slovenian",
+  et: "Estonian",
+  lv: "Latvian",
+  lt: "Lithuanian",
+  mk: "Macedonian",
+  mt: "Maltese",
+  ga: "Irish",
+  cy: "Welsh",
+  is: "Icelandic",
+  sq: "Albanian",
+  eu: "Basque",
+  ca: "Catalan",
+  gl: "Galician",
+  
+  // African Languages
+  am: "Amharic",
+  ha: "Hausa",
+  ig: "Igbo",
+  yo: "Yoruba",
+  zu: "Zulu",
+  xh: "Xhosa",
+  af: "Afrikaans",
+  rw: "Kinyarwanda",
+  rn: "Kirundi",
+  lg: "Luganda",
+  sn: "Shona",
+  ny: "Chichewa",
+  st: "Sesotho",
+  tn: "Setswana",
+  ts: "Xitsonga",
+  ss: "Siswati",
+  ve: "Tshivenda",
+  nr: "Ndebele",
+  
+  // Asian Languages
+  my: "Burmese",
+  km: "Khmer",
+  lo: "Lao",
+  si: "Sinhala",
+  ne: "Nepali",
+  as: "Assamese",
+  sd: "Sindhi",
+  ps: "Pashto",
+  fa: "Persian",
+  tg: "Tajik",
+  uz: "Uzbek",
+  kk: "Kazakh",
+  ky: "Kyrgyz",
+  tk: "Turkmen",
+  mn: "Mongolian",
+  ti: "Tigrinya",
+  dv: "Dhivehi",
+  
+  // Pacific Languages
+  fj: "Fijian",
+  to: "Tongan",
+  sm: "Samoan",
+  mi: "Maori",
+  
+  // American Indigenous Languages
+  qu: "Quechua",
+  gn: "Guarani",
+  ay: "Aymara",
+  
+  // Additional European Languages
+  fo: "Faroese",
+  se: "Northern Sami",
+  rm: "Romansh",
+  lb: "Luxembourgish",
+  gd: "Scottish Gaelic",
+  kw: "Cornish",
+  br: "Breton",
+  oc: "Occitan",
+  co: "Corsican",
+  sc: "Sardinian",
+  
+  // Middle Eastern Languages
+  ku: "Kurdish",
+  az: "Azerbaijani",
+  ka: "Georgian",
+  hy: "Armenian",
+  yi: "Yiddish",
+  
+  // Central Asian Languages
+  bo: "Tibetan",
+  ug: "Uyghur",
+  
+  // Other Languages
+  eo: "Esperanto",
+  la: "Latin",
+  sa: "Sanskrit"
+} as const;
+
+export type LanguageCode = keyof typeof LANGUAGES;
