@@ -1,12 +1,20 @@
 'use client';
 
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 
 interface PopupContextType {
   isOpenPopup: boolean;
-  setIsOpenPopup: (value: boolean) => void;
+  setIsOpenPopup: Dispatch<SetStateAction<boolean>>;
   currentPopup: string;
-  setCurrentPopup: (value: string) => void;
+  setCurrentPopup: Dispatch<SetStateAction<string>>;
   closePopup: () => void;
   openPopup: (popup: string) => void;
 }

@@ -1,11 +1,13 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, Dispatch, SetStateAction, useContext, useMemo, useState } from 'react';
 import { CorpusEntry, FileEntry } from '@/types/data.types';
 
 interface DatabaseInMemoryContextType {
   corpusEntries: CorpusEntry[];
   fileEntries: FileEntry[];
-  setCorpusEntries: (entries: CorpusEntry[] | ((prev: CorpusEntry[]) => CorpusEntry[])) => void;
-  setFileEntries: (entries: FileEntry[] | ((prev: FileEntry[]) => FileEntry[])) => void;
+  setCorpusEntries: Dispatch<SetStateAction<CorpusEntry[]>>;
+  setFileEntries: Dispatch<SetStateAction<FileEntry[]>>;
+  corpusIdsByLanguage: Map<string, Set<string>>;
+  setCorpusIdsByLanguage: Dispatch<SetStateAction<Map<string, Set<string>>>>;
 }
 
 const DatabaseInMemoryContext = createContext<DatabaseInMemoryContextType | null>(null);
@@ -21,6 +23,9 @@ export const useDatabaseInMemoryContext = () => {
 export const DatabaseInMemoryProvider = ({ children }: { children: React.ReactNode }) => {
   const [corpusEntries, setCorpusEntries] = useState<CorpusEntry[]>([]);
   const [fileEntries, setFileEntries] = useState<FileEntry[]>([]);
+  const [corpusIdsByLanguage, setCorpusIdsByLanguage] = useState<Map<string, Set<string>>>(
+    new Map(),
+  );
 
   const value: DatabaseInMemoryContextType = useMemo(
     () => ({
@@ -28,8 +33,10 @@ export const DatabaseInMemoryProvider = ({ children }: { children: React.ReactNo
       fileEntries,
       setCorpusEntries,
       setFileEntries,
+      corpusIdsByLanguage,
+      setCorpusIdsByLanguage,
     }),
-    [corpusEntries, fileEntries],
+    [corpusEntries, fileEntries, corpusIdsByLanguage, setCorpusIdsByLanguage],
   );
 
   return (

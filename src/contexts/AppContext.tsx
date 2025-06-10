@@ -1,7 +1,16 @@
 'use client';
 
 import { FileGroup } from '@/types/data.types';
-import { createContext, useContext, useMemo, useState, useCallback, useEffect } from 'react';
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  useCallback,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+} from 'react';
 
 // Cell change tracking interface
 interface CellChange {
@@ -14,21 +23,21 @@ interface CellChange {
 
 interface AppContextType {
   isEditMode: boolean;
-  setIsEditMode: (value: boolean) => void;
+  setIsEditMode: Dispatch<SetStateAction<boolean>>;
   activeTab: string;
-  setActiveTab: (value: string) => void;
+  setActiveTab: Dispatch<SetStateAction<string>>;
   hasChangesInDataTable: boolean;
-  setHasChangesInDataTable: (value: boolean) => void;
+  setHasChangesInDataTable: Dispatch<SetStateAction<boolean>>;
   changesCount: number;
-  setChangesCount: (value: number) => void;
+  setChangesCount: Dispatch<SetStateAction<number>>;
   selectedFileGroup: FileGroup;
-  setSelectedFileGroup: (value: FileGroup) => void;
+  setSelectedFileGroup: Dispatch<SetStateAction<FileGroup>>;
 
   // Enhanced edit mode functionality
   activeEditingCell: string | null;
-  setActiveEditingCell: (cellKey: string | null) => void;
+  setActiveEditingCell: Dispatch<SetStateAction<string | null>>;
   cellChanges: Map<string, CellChange>;
-  setCellChanges: (changes: Map<string, CellChange>) => void;
+  setCellChanges: Dispatch<SetStateAction<Map<string, CellChange>>>;
   updateCellValue: (
     rowId: string,
     column: string,

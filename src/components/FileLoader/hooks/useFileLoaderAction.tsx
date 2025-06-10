@@ -14,7 +14,7 @@ export default function useFileLoaderAction() {
 
   const { setIsOpenPopup, closePopup } = usePopupContext();
   const { setSelectedFileGroup } = useAppContext();
-  const { setCorpusEntries, setFileEntries } = useDatabaseInMemoryContext();
+  const { setCorpusEntries, setFileEntries, setCorpusIdsByLanguage } = useDatabaseInMemoryContext();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -32,6 +32,7 @@ export default function useFileLoaderAction() {
       const text = await file.text();
       const lines = text.split('\n'); // Remove trim() and use split directly
       const totalLines = lines.length;
+      const rowIdSet = new Set<string>();
 
       // Pre-compute static values
       const language = file.name.split('.')[0].split('_')[1];
@@ -68,6 +69,7 @@ export default function useFileLoaderAction() {
           semantic: columns[9],
         };
 
+        rowIdSet.add(entryId);
         currentBatch.push(entry);
         processedLines++;
 
@@ -88,12 +90,17 @@ export default function useFileLoaderAction() {
       }
 
       setCorpusEntries((prev) => [...prev, ...corpusEntries]);
+      setCorpusIdsByLanguage((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(language, rowIdSet);
+        return newMap;
+      });
       setProgressedLines(processedLines);
       await new Promise((resolve) => {
         requestAnimationFrame(resolve);
       });
     },
-    [setCorpusEntries],
+    [setCorpusEntries, setCorpusIdsByLanguage],
   );
 
   const processFiles = useCallback(
@@ -149,6 +156,7 @@ export default function useFileLoaderAction() {
       // Single file - process directly
       if (textFiles.length === 1) {
         setCorpusEntries([]);
+        setCorpusIdsByLanguage(new Map());
         const groups = createFileGroup(textFiles);
         setSelectedFileGroup(groups);
         processFiles(textFiles);
@@ -171,7 +179,7 @@ export default function useFileLoaderAction() {
       // All files valid - group and process
       setShowLanguageConfirmation(true);
     },
-    [setSelectedFileGroup, processFiles, setCorpusEntries],
+    [setSelectedFileGroup, processFiles, setCorpusEntries, setCorpusIdsByLanguage],
   );
 
   const handleBrowseClick = useCallback(() => {
@@ -207,6 +215,7 @@ export default function useFileLoaderAction() {
     // Single file - process directly
     if (textFiles.length === 1) {
       setCorpusEntries([]);
+      setCorpusIdsByLanguage(new Map());
       const groups = createFileGroup(textFiles);
       setSelectedFileGroup(groups);
       processFiles(textFiles);

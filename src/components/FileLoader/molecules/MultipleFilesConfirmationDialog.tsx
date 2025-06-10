@@ -11,7 +11,7 @@ export default function MultipleFilesConfirmationDialog({
   selectedFileGroup: FileGroup;
   onConfirm: (files: File[]) => Promise<void>;
 }) {
-  const { setCorpusEntries } = useDatabaseInMemoryContext();
+  const { setCorpusEntries, setCorpusIdsByLanguage } = useDatabaseInMemoryContext();
   const { setShowLanguageConfirmation } = useFileLoaderAction();
 
   return (
@@ -44,6 +44,7 @@ export default function MultipleFilesConfirmationDialog({
           type="button"
           onClick={async () => {
             setCorpusEntries([]);
+            setCorpusIdsByLanguage(new Map());
             await onConfirm(selectedFileGroup.files.map((file) => file.file));
           }}
           className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
