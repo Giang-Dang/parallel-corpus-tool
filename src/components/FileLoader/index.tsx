@@ -1,12 +1,12 @@
 'use client';
 
-import { FileDropZone } from '@/components/ui/FileDropZone';
-import MultipleFilesConfirmationDialog from '../../../ui/Dialog/LanguageConfirmationDialog';
+import { FileDropZone } from '@/components/FileLoader/molecules/FileDropZone';
+import MultipleFilesConfirmationDialog from './molecules/MultipleFilesConfirmationDialog';
 import useFileLoaderAction from './hooks/useFileLoaderAction';
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
-import ErrorDialog from '@/components/ui/Dialog/ErrorDialog';
+import ErrorDialog from '@/components/FileLoader/molecules/ErrorDialog';
 import { useAppContext } from '@/contexts/AppContext';
-import ProgressDisplay from '@/components/ui/ProgressDisplay';
+import ProgressDisplay from '@/components/FileLoader/molecules/ProgressDisplay';
 
 export default function FileLoader() {
   const {

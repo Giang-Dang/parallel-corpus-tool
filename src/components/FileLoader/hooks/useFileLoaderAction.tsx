@@ -41,8 +41,6 @@ export default function useFileLoaderAction() {
       let currentBatch: CorpusEntry[] = [];
       let processedLines = 0;
 
-      setCorpusEntries([]);
-
       for (let i = 0; i < totalLines; i++) {
         const line = lines[i];
         // Fast empty line check
@@ -89,7 +87,7 @@ export default function useFileLoaderAction() {
         corpusEntries.push(...currentBatch);
       }
 
-      setCorpusEntries(corpusEntries);
+      setCorpusEntries((prev) => [...prev, ...corpusEntries]);
       setProgressedLines(processedLines);
       await new Promise((resolve) => {
         requestAnimationFrame(resolve);
@@ -114,8 +112,8 @@ export default function useFileLoaderAction() {
             ...prev,
             {
               name: file.name,
-              baseName: file.name.split('.')[0],
-              language: file.name.split('.')[0],
+              baseName: file.name.split('.')[0].split('_')[0],
+              language: file.name.split('.')[0].split('_')[1],
               insertedAt: date,
               updatedAt: date,
             },
@@ -150,6 +148,7 @@ export default function useFileLoaderAction() {
 
       // Single file - process directly
       if (textFiles.length === 1) {
+        setCorpusEntries([]);
         const groups = createFileGroup(textFiles);
         setSelectedFileGroup(groups);
         processFiles(textFiles);
@@ -172,7 +171,7 @@ export default function useFileLoaderAction() {
       // All files valid - group and process
       setShowLanguageConfirmation(true);
     },
-    [setSelectedFileGroup, processFiles],
+    [setSelectedFileGroup, processFiles, setCorpusEntries],
   );
 
   const handleBrowseClick = useCallback(() => {
@@ -207,6 +206,7 @@ export default function useFileLoaderAction() {
 
     // Single file - process directly
     if (textFiles.length === 1) {
+      setCorpusEntries([]);
       const groups = createFileGroup(textFiles);
       setSelectedFileGroup(groups);
       processFiles(textFiles);

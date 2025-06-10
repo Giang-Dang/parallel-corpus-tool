@@ -34,7 +34,7 @@ export default function Header() {
               <button
                 onClick={handleToggle}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  isEditMode ? 'bg-blue-500' : 'bg-gray-200'
+                  isEditMode ? 'bg-blue-500' : 'bg-blue-200'
                 }`}
                 title={`${isEditMode ? 'Disable' : 'Enable'} edit mode`}
                 aria-label={`${isEditMode ? 'Disable' : 'Enable'} edit mode`}

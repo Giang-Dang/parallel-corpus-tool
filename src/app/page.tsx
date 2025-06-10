@@ -1,10 +1,10 @@
 'use client';
 
-import DataTable from '@/components/features/corpus/DataTable';
-import Header from '@/components/ui/Header';
-import Popups from '@/components/ui/Popups';
-import RibbonMenu from '@/components/ui/RibbonMenu';
-import WelcomeSection from '@/components/ui/WelcomeSection';
+import DataTable from '@/components/DataTable';
+import Header from '@/components/Header';
+import Popups from '@/components/Popups';
+import RibbonMenu from '@/components/RibbonMenu';
+import WelcomeSection from '@/components/WelcomeSection';
 import { AppProvider } from '@/contexts/AppContext';
 import { DatabaseInMemoryProvider } from '@/contexts/DatabaseInMemoryContext';
 import { PopupContextProvider } from '@/contexts/PopupContext';
@@ -14,11 +14,15 @@ export default function Home() {
     <DatabaseInMemoryProvider>
       <AppProvider>
         <PopupContextProvider>
-          <Header />
-          <RibbonMenu />
-          <WelcomeSection />
-          <DataTable />
-          <Popups />
+          <div className="flex h-screen flex-col overflow-hidden">
+            <Header />
+            <RibbonMenu />
+            <WelcomeSection />
+            <div className="flex-1 overflow-hidden p-4">
+              <DataTable />
+            </div>
+            <Popups />
+          </div>
         </PopupContextProvider>
       </AppProvider>
     </DatabaseInMemoryProvider>
