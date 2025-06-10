@@ -20,6 +20,7 @@ export default function FileLoader() {
     handleBrowseClick,
     fileInputRef,
     handleFileSelect,
+    showLanguageConfirmation,
   } = useFileLoaderAction();
 
   const { selectedFileGroup } = useAppContext();
@@ -43,10 +44,12 @@ export default function FileLoader() {
             </svg>
           </button>
         </div>
-        <MultipleFilesConfirmationDialog
-          selectedFileGroup={selectedFileGroup}
-          onConfirm={processFiles}
-        />
+        {showLanguageConfirmation && (
+          <MultipleFilesConfirmationDialog
+            selectedFileGroup={selectedFileGroup}
+            onConfirm={processFiles}
+          />
+        )}
         {error && <ErrorDialog errorMessage={error} />}
         {isLoading ? (
           <ProgressDisplay totalLines={totalLines} progressedLines={progressedLines} />

@@ -10,8 +10,7 @@ export default function MultipleFilesConfirmationDialog({
   selectedFileGroup: FileGroup;
   onConfirm: (files: File[]) => Promise<void>;
 }) {
-  const { showLanguageConfirmation, setShowLanguageConfirmation } = useFileLoaderAction();
-  if (!showLanguageConfirmation) return null;
+  const { setShowLanguageConfirmation } = useFileLoaderAction();
 
   return (
     <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4">

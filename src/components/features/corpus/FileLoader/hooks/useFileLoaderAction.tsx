@@ -1,6 +1,7 @@
 import { useAppContext } from '@/contexts/AppContext';
+import { useDatabaseInMemoryContext } from '@/contexts/DatabaseInMemoryContext';
 import { usePopupContext } from '@/contexts/PopupContext';
-import { CorpusEntry, db } from '@/database/schema';
+import { CorpusEntry, FileEntry } from '@/types/data.types';
 import { createFileGroup, parseLanguageFiles } from '@/utils/fileUtils';
 import { useCallback, useRef, useState } from 'react';
 
@@ -13,6 +14,7 @@ export default function useFileLoaderAction() {
 
   const { setIsOpen, closePopup } = usePopupContext();
   const { setSelectedFileGroup } = useAppContext();
+  const { setCorpusEntries, setFileEntries } = useDatabaseInMemoryContext();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -20,41 +22,46 @@ export default function useFileLoaderAction() {
     setIsOpen(false);
   }, [setIsOpen]);
 
-  const processFileInChunks = async (file: File): Promise<void> => {
-    const CHUNK_SIZE = 10000;
-    const TOTAL_COLUMNS = 10;
-    const PROGRESS_UPDATE_INTERVAL = 20;
+  const processFileInChunks = useCallback(
+    async (file: File): Promise<void> => {
+      const BATCH_SIZE = 100000; // Larger batches for better performance
+      const TOTAL_COLUMNS = 10;
 
-    const text = await file.text();
-    const lines = text.trim().split('\n');
+      // Read file as stream for better memory efficiency
+      const corpusEntries: CorpusEntry[] = [];
+      const text = await file.text();
+      const lines = text.split('\n'); // Remove trim() and use split directly
+      const totalLines = lines.length;
 
-    const CHUNK_COUNT = Math.ceil(lines.length / CHUNK_SIZE);
+      // Pre-compute static values
+      const language = file.name.split('.')[0].split('_')[1];
 
-    let currentLine = 0;
-    let currentChunk: CorpusEntry[] = [];
-    let lastProgressUpdate = performance.now();
+      setTotalLines(totalLines);
 
-    setTotalLines(lines.length);
+      let currentBatch: CorpusEntry[] = [];
+      let processedLines = 0;
 
-    for (let chunkIndex = 0; chunkIndex < CHUNK_COUNT; chunkIndex++) {
-      for (let i = 0; i < CHUNK_SIZE && currentLine < lines.length; i++) {
-        currentLine++;
-        const line = lines[currentLine].trim();
-        if (!line) continue;
+      setCorpusEntries([]);
 
-        const columns = line.split('\t');
+      for (let i = 0; i < totalLines; i++) {
+        const line = lines[i];
+        // Fast empty line check
+        if (!line || line.length < 10) continue;
+
+        // Optimized tab-split with limit
+        const columns = line.split('\t', TOTAL_COLUMNS);
         if (columns.length < TOTAL_COLUMNS) continue;
 
+        // Ultra-fast entry creation with minimal operations
+        const entryId = columns[0];
         const entry: CorpusEntry = {
-          language: file.name.split('.')[0].split('_')[1], // Extract language from filename
-          entryId: columns[0],
-          sentenceIndex: parseInt(columns[0].slice(2, -2)),
-          wordIndex: parseInt(columns[0].slice(-2)),
+          language,
+          entryId,
+          sentenceIndex: parseInt(entryId.slice(2, -2), 10), // Explicit radix for speed
+          wordIndex: parseInt(entryId.slice(-2), 10),
           word: columns[1],
-          insertedAt: new Date(),
-          updatedAt: new Date(),
           lemma: columns[2],
-          links: columns[3],
+          links: new Set(columns[3].split(',').map(Number)),
           morph: columns[4],
           pos: columns[5],
           phrase: columns[6],
@@ -63,41 +70,63 @@ export default function useFileLoaderAction() {
           semantic: columns[9],
         };
 
-        currentChunk.push(entry);
+        currentBatch.push(entry);
+        processedLines++;
 
-        await db.corpus.bulkAdd(currentChunk);
-        currentChunk = [];
-
-        // Update UI
-        const now = performance.now();
-        if (now - lastProgressUpdate >= PROGRESS_UPDATE_INTERVAL) {
-          setProgressedLines(i);
-          lastProgressUpdate = now;
-          await new Promise((resolve) => requestAnimationFrame(resolve));
+        // Batch insert when batch is full
+        if (currentBatch.length >= BATCH_SIZE) {
+          corpusEntries.push(...currentBatch);
+          setProgressedLines(processedLines);
+          await new Promise((resolve) => {
+            requestAnimationFrame(resolve);
+          });
+          currentBatch = [];
         }
       }
-    }
-  };
 
-  const processFiles = useCallback(async (files: File[]): Promise<void> => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      for (const file of files) {
-        await processFileInChunks(file);
-        await db.files.add({
-          name: file.name,
-          baseName: file.name.split('.')[0],
-          language: file.name.split('.')[0],
-          insertedAt: new Date(),
-          updatedAt: new Date(),
-        });
+      // Insert remaining entries
+      if (currentBatch.length > 0) {
+        corpusEntries.push(...currentBatch);
       }
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+
+      setCorpusEntries(corpusEntries);
+      setProgressedLines(processedLines);
+      await new Promise((resolve) => {
+        requestAnimationFrame(resolve);
+      });
+    },
+    [setCorpusEntries],
+  );
+
+  const processFiles = useCallback(
+    async (files: File[]): Promise<void> => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        setFileEntries([]);
+
+        for (const file of files) {
+          await processFileInChunks(file);
+          const date = new Date();
+          setFileEntries((prev: FileEntry[]) => [
+            ...prev,
+            {
+              name: file.name,
+              baseName: file.name.split('.')[0],
+              language: file.name.split('.')[0],
+              insertedAt: date,
+              updatedAt: date,
+            },
+          ]);
+        }
+      } finally {
+        setIsLoading(false);
+        closePopup();
+      }
+    },
+    [closePopup, processFileInChunks, setFileEntries],
+  );
 
   const handleFileDrop = useCallback(
     (event: React.DragEvent) => {
@@ -106,6 +135,8 @@ export default function useFileLoaderAction() {
       setShowLanguageConfirmation(false);
 
       const files = Array.from(event.dataTransfer.files);
+
+      console.log('files', files);
 
       const textFiles = files.filter(
         (file) => file.type === 'text/plain' || file.name.endsWith('.txt'),
@@ -120,14 +151,16 @@ export default function useFileLoaderAction() {
       if (textFiles.length === 1) {
         const groups = createFileGroup(textFiles);
         setSelectedFileGroup(groups);
-        processFileInChunks(textFiles[0]);
-        closePopup();
+        processFiles(textFiles);
         return;
       }
 
       // Multiple files - validate language patterns
       const languageFiles = parseLanguageFiles(textFiles);
       const invalidFiles = textFiles.filter((_, index) => languageFiles[index] === null);
+
+      console.log('languageFiles', languageFiles);
+      console.log('invalidFiles', invalidFiles);
 
       if (invalidFiles.length > 0) {
         const invalidFileNames = invalidFiles.map((f) => f.name).join(', ');
@@ -137,11 +170,12 @@ export default function useFileLoaderAction() {
         return;
       }
 
+      const groups = createFileGroup(textFiles);
+      setSelectedFileGroup(groups);
       // All files valid - group and process
       setShowLanguageConfirmation(true);
-      closePopup();
     },
-    [setSelectedFileGroup, closePopup],
+    [setSelectedFileGroup, processFiles],
   );
 
   const handleBrowseClick = useCallback(() => {
@@ -178,7 +212,7 @@ export default function useFileLoaderAction() {
     if (textFiles.length === 1) {
       const groups = createFileGroup(textFiles);
       setSelectedFileGroup(groups);
-      processFileInChunks(textFiles[0]);
+      processFiles(textFiles);
       return;
     }
 

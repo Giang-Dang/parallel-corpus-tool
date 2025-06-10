@@ -1,3 +1,5 @@
+'use client';
+
 import { TABS } from '@/constants/tabs';
 import { useAppContext } from '@/contexts/AppContext';
 import useRibbonMenuAction from './hooks/useRibbonMenuAction';

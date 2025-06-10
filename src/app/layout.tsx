@@ -1,10 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import RibbonMenu from '@/components/ui/RibbonMenu';
-import Header from '@/components/ui/Header';
-import WelcomeSection from '@/components/ui/WelcomeSection';
-import Popups from '@/components/ui/Popups';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -27,18 +23,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="mdl-js">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        suppressHydrationWarning={true}
+        suppressHydrationWarning
       >
-        <div className="min-h-screen bg-gray-50">
-          <Header />
-          <RibbonMenu />
-          <WelcomeSection />
-          {children}
-          <Popups />
-        </div>
+        <div className="min-h-screen bg-gray-50">{children}</div>
       </body>
     </html>
   );

@@ -1,12 +1,13 @@
 'use client';
 
-import { SaveButtonState } from '@/types/SaveButtonStates.types';
+import { SaveButtonState } from '@/types/ui.types';
 import { useAppContext } from '@/contexts/AppContext';
 import { useCallback, useMemo } from 'react';
+import { usePopupContext } from '@/contexts/PopupContext';
 
 export default function useFileMenu() {
   const { isEditMode, hasChangesInDataTable, changesCount } = useAppContext();
-
+  const { openPopup } = usePopupContext();
   const saveButtonState: SaveButtonState = useMemo(() => {
     if (!isEditMode || !hasChangesInDataTable) return SaveButtonState.disabled;
     if (hasChangesInDataTable) return SaveButtonState.unsaved;
@@ -91,7 +92,9 @@ export default function useFileMenu() {
     [saveButtonText, saveButtonState],
   );
 
-  const handleOpenClick = useCallback(() => {}, []);
+  const handleOpenClick = useCallback(() => {
+    openPopup('fileLoader');
+  }, []);
   const handleSaveClick = useCallback(() => {}, []);
 
   return {

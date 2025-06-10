@@ -14,8 +14,6 @@
     "@mui/icons-material": "^7.1.1",
     "@mui/material": "^7.1.1",
     "@mui/x-date-pickers": "^8.5.1",
-    "dexie": "^4.0.11",
-    "dexie-react-hooks": "^1.1.7",
     "material-react-table": "^3.2.1",
     "next": "15.3.3",
     "react": "^19.0.0",
