@@ -94,7 +94,7 @@ export default function useFileMenu() {
 
   const handleOpenClick = useCallback(() => {
     openPopup('fileLoader');
-  }, []);
+  }, [openPopup]);
   const handleSaveClick = useCallback(() => {}, []);
 
   return {
