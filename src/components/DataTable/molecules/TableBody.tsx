@@ -1,5 +1,6 @@
 import { CorpusEntry } from '@/types/data.types';
 import { CORPUS_COLUMNS } from '../utils/columnConfig';
+import SmartTableCell from './SmartTableCell';
 
 interface TableBodyProps {
   entries: CorpusEntry[];
@@ -51,34 +52,24 @@ export default function TableBody({ entries }: TableBodyProps) {
         >
           {CORPUS_COLUMNS.map((column, colIndex) => {
             const value = entry[column.key];
-            let displayValue: string;
-
-            // Handle special cases for display
-            if (column.key === 'links') {
-              displayValue = Array.from(value as Set<number>).join(', ');
-            } else {
-              displayValue = String(value);
-            }
-
             const isFirstColumn = colIndex === 0;
             const isImportantColumn = ['word', 'lemma', 'pos'].includes(column.key);
 
             return (
-              <td
+              <SmartTableCell
                 key={column.key}
-                className={`border-r border-gray-100 px-6 py-4 text-sm last:border-r-0 ${
+                value={value}
+                rowId={entry.entryId}
+                column={column.key}
+                isEditable={column.editable}
+                className={`px-6 py-4 text-sm transition-colors duration-200 group-hover:text-gray-900 ${
                   isFirstColumn
                     ? 'font-semibold text-gray-900'
                     : isImportantColumn
                       ? 'font-medium text-gray-800'
                       : 'text-gray-600'
-                } transition-colors duration-200 group-hover:text-gray-900`}
-                title={displayValue} // Show full value on hover
-              >
-                <div className={`max-w-xs ${isFirstColumn ? 'max-w-24' : 'max-w-32'} truncate`}>
-                  {displayValue || <span className="text-xs text-gray-400 italic">—</span>}
-                </div>
-              </td>
+                } `}
+              />
             );
           })}
         </tr>

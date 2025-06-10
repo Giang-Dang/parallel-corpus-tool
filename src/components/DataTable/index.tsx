@@ -4,6 +4,7 @@ import TableHeader from './molecules/TableHeader';
 import TableBody from './molecules/TableBody';
 import Pagination from './molecules/Pagination';
 import LoadingIndicator from './molecules/LoadingIndicator';
+import EditModeIndicator from './molecules/EditModeIndicator';
 import { useTableState } from './hooks/useTableState';
 import { useProcessedData } from './hooks/useProcessedData';
 
@@ -16,6 +17,9 @@ export default function DataTable() {
 
   return (
     <div className="flex h-full max-w-full flex-col">
+      {/* Edit Mode Indicator */}
+      <EditModeIndicator />
+
       {/* Main Table Container */}
       <div className="flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
         {/* Language Selector */}

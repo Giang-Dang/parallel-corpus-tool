@@ -1,3 +1,4 @@
+import { useAppContext } from '@/contexts/AppContext';
 import useFileMenu from './hooks/useFileMenu';
 
 export default function FileMenu() {
@@ -9,6 +10,8 @@ export default function FileMenu() {
     handleSaveClick,
     currentText,
   } = useFileMenu();
+
+  const { isEditMode, setIsEditMode, changesCount } = useAppContext();
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
@@ -56,6 +59,59 @@ export default function FileMenu() {
               {currentText.title}
             </div>
             <div className={`text-xs ${currentStyles.subtitle}`}>{currentText.subtitle}</div>
+          </div>
+        </button>
+
+        {/* Edit Mode Toggle Button */}
+        <button
+          onClick={() => setIsEditMode(!isEditMode)}
+          className={`group flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg sm:px-4 sm:py-3 ${
+            isEditMode
+              ? 'border-orange-300 bg-orange-50 hover:border-orange-400'
+              : 'border-gray-200 bg-white hover:border-green-300'
+          }`}
+        >
+          <div
+            className={`flex h-9 w-9 items-center justify-center rounded-lg transition-all duration-200 sm:h-10 sm:w-10 ${
+              isEditMode
+                ? 'bg-gradient-to-r from-orange-500 to-orange-600 group-hover:from-orange-600 group-hover:to-orange-700'
+                : 'bg-gradient-to-r from-green-500 to-green-600 group-hover:from-green-600 group-hover:to-green-700'
+            }`}
+          >
+            <svg
+              className="h-4 w-4 text-white sm:h-5 sm:w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {isEditMode ? (
+                // Exit edit mode icon
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                // Enter edit mode icon
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              )}
+            </svg>
+          </div>
+          <div className="text-left">
+            <div
+              className={`text-sm font-medium sm:text-base ${isEditMode ? 'text-orange-900' : 'text-gray-900'}`}
+            >
+              {isEditMode ? 'Exit Edit' : 'Edit Mode'}
+            </div>
+            <div className={`text-xs ${isEditMode ? 'text-orange-600' : 'text-gray-500'}`}>
+              {isEditMode ? `${changesCount} changes` : 'Click cells to edit'}
+            </div>
           </div>
         </button>
       </div>
