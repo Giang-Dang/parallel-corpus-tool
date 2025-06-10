@@ -4,16 +4,10 @@ import { usePopupContext } from '@/contexts/PopupContext';
 import { PopupType } from '@/types/popup.types';
 
 export default function FileMenu() {
-  const {
-    saveButtonState,
-    saveIcon,
-    currentStyles,
-    handleOpenClick,
-    handleSaveClick,
-    currentText,
-  } = useFileMenu();
+  const { saveIcon, currentStyles, handleOpenClick, handleSaveClick, currentText } = useFileMenu();
 
-  const { isEditMode, setIsEditMode, changesCount, hasChangesInDataTable } = useAppContext();
+  const { isEditMode, setIsEditMode, changesCount, hasChangesInDataTable, canSaveChanges } =
+    useAppContext();
   const { openPopup } = usePopupContext();
 
   return (
@@ -50,7 +44,12 @@ export default function FileMenu() {
           {/* Save Button */}
           <button
             onClick={handleSaveClick}
-            disabled={saveButtonState === 'disabled'}
+            disabled={!canSaveChanges}
+            title={
+              !canSaveChanges
+                ? 'Resolve validation issues or make changes before saving'
+                : 'Save changes to file'
+            }
             className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 hover:scale-[1.02] sm:px-4 sm:py-3 ${currentStyles.container}`}
           >
             <div

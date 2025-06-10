@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { useAppContext } from '@/contexts/AppContext';
 import { CORPUS_COLUMNS } from '../utils/columnConfig';
 import { usePopupContext } from '@/contexts/PopupContext';
+import { useValidationSync } from '@/hooks/useValidationSync';
 
 interface ChangeDetail {
   rowId: string;
@@ -12,8 +13,9 @@ interface ChangeDetail {
 }
 
 const ChangesPreview: React.FC = () => {
-  const { cellChanges, revertCellChange, clearAllChanges } = useAppContext();
+  const { cellChanges, revertCellChange, clearAllChanges, canSaveChanges } = useAppContext();
   const { setIsOpenPopup } = usePopupContext();
+  const { validationIssues, hasCriticalIssues, getChangeIssues } = useValidationSync();
 
   // Group changes by row for better organization
   const changesByRow = useMemo(() => {
@@ -63,6 +65,17 @@ const ChangesPreview: React.FC = () => {
   const onClose = useCallback(() => {
     setIsOpenPopup(false);
   }, [setIsOpenPopup]);
+
+  // Save functionality with validation
+  const handleSave = useCallback(() => {
+    if (!canSaveChanges) {
+      return; // Prevent save when there are critical issues or no changes
+    }
+
+    // TODO: Implement save functionality
+    console.log('Save changes:', cellChanges);
+    onClose();
+  }, [canSaveChanges, cellChanges, onClose]);
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -130,8 +143,41 @@ const ChangesPreview: React.FC = () => {
             </div>
           </div>
 
+          {/* Validation Issues Alert */}
+          {validationIssues.length > 0 && (
+            <div className="border-b border-red-200 bg-red-50 px-6 py-4">
+              <div className="flex items-start space-x-3">
+                <div className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-red-100">
+                  <svg className="h-3 w-3 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-medium text-red-800">Data Integrity Issues Found</h3>
+                  <div className="mt-2 text-sm text-red-700">
+                    <ul className="list-disc space-y-1 pl-5">
+                      {validationIssues.map((issue, index) => (
+                        <li key={index}>
+                          <span className="font-medium">Entry {issue.rowId}:</span> {issue.message}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <p className="mt-2 text-xs text-red-600">
+                    ⚠️ Please resolve these conflicts before saving. Changes with issues are
+                    highlighted below.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Content */}
-          <div className="max-h-[70vh] overflow-y-auto">
+          <div className="max-h-[60vh] overflow-y-auto">
             {!hasChanges ? (
               // Empty state
               <div className="flex flex-col items-center justify-center px-6 py-16">
@@ -158,80 +204,152 @@ const ChangesPreview: React.FC = () => {
             ) : (
               // Changes list
               <div className="space-y-6 p-6">
-                {Object.entries(changesByRow).map(([rowId, changes]) => (
-                  <div key={rowId} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                    {/* Row header */}
-                    <div className="mb-4 flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-100 text-xs font-medium text-blue-700">
-                          #
-                        </div>
-                        <span className="text-sm font-medium text-gray-900">
-                          Entry ID: <span className="font-mono">{rowId}</span>
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {changes.length} {changes.length === 1 ? 'change' : 'changes'}
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        Last modified: {changes[0]?.timestamp.toLocaleTimeString()}
-                      </div>
-                    </div>
+                {Object.entries(changesByRow).map(([rowId, changes]) => {
+                  const rowHasIssues = validationIssues.some((issue) => issue.rowId === rowId);
 
-                    {/* Changes for this row */}
-                    <div className="grid gap-3">
-                      {changes.map((change) => (
-                        <div
-                          key={change.column}
-                          className="rounded-lg border border-gray-200 bg-white p-4"
-                        >
-                          <div className="mb-3 flex items-center justify-between">
-                            <span className="text-sm font-medium text-gray-700">
-                              {getColumnLabel(change.column)}
+                  return (
+                    <div
+                      key={rowId}
+                      className={`rounded-xl border p-4 ${
+                        rowHasIssues ? 'border-red-300 bg-red-50/50' : 'border-gray-200 bg-gray-50'
+                      }`}
+                    >
+                      {/* Row header */}
+                      <div className="mb-4 flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div
+                            className={`flex h-6 w-6 items-center justify-center rounded text-xs font-medium ${
+                              rowHasIssues ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                            }`}
+                          >
+                            {rowHasIssues ? '!' : '#'}
+                          </div>
+                          <span className="text-sm font-medium text-gray-900">
+                            Entry ID: <span className="font-mono">{rowId}</span>
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {changes.length} {changes.length === 1 ? 'change' : 'changes'}
+                          </span>
+                          {rowHasIssues && (
+                            <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-800">
+                              Needs Attention
                             </span>
-                            <button
-                              onClick={() => revertCellChange(change.rowId, change.column)}
-                              className="rounded px-2 py-1 text-xs text-red-600 transition-colors duration-150 hover:bg-red-50 hover:text-red-700"
-                            >
-                              Revert
-                            </button>
-                          </div>
-
-                          {/* Value comparison */}
-                          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                            {/* Original value */}
-                            <div className="space-y-1">
-                              <div className="text-xs font-medium tracking-wide text-red-700 uppercase">
-                                Original
-                              </div>
-                              <div className="rounded-md border border-red-200 bg-red-50 p-3">
-                                <span className="font-mono text-sm text-red-900">
-                                  {formatValue(change.originalValue) || (
-                                    <span className="text-red-400 italic">Empty</span>
-                                  )}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* New value */}
-                            <div className="space-y-1">
-                              <div className="text-xs font-medium tracking-wide text-green-700 uppercase">
-                                New
-                              </div>
-                              <div className="rounded-md border border-green-200 bg-green-50 p-3">
-                                <span className="font-mono text-sm text-green-900">
-                                  {formatValue(change.newValue) || (
-                                    <span className="text-green-400 italic">Empty</span>
-                                  )}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
+                          )}
                         </div>
-                      ))}
+                        <div className="text-xs text-gray-400">
+                          Last modified: {changes[0]?.timestamp.toLocaleTimeString()}
+                        </div>
+                      </div>
+
+                      {/* Changes for this row */}
+                      <div className="grid gap-3">
+                        {changes.map((change) => {
+                          const changeIssues = getChangeIssues(change.rowId, change.column);
+                          const hasIssues = changeIssues.length > 0;
+
+                          return (
+                            <div
+                              key={change.column}
+                              className={`rounded-lg border p-4 ${
+                                hasIssues
+                                  ? 'border-red-300 bg-white ring-1 ring-red-300'
+                                  : 'border-gray-200 bg-white'
+                              }`}
+                            >
+                              <div className="mb-3 flex items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-sm font-medium text-gray-700">
+                                    {getColumnLabel(change.column)}
+                                  </span>
+                                  {hasIssues && (
+                                    <svg
+                                      className="h-4 w-4 text-red-500"
+                                      fill="currentColor"
+                                      viewBox="0 0 20 20"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                  )}
+                                </div>
+                                <button
+                                  onClick={() => revertCellChange(change.rowId, change.column)}
+                                  className="rounded px-2 py-1 text-xs text-red-600 transition-colors duration-150 hover:bg-red-50 hover:text-red-700"
+                                >
+                                  Revert
+                                </button>
+                              </div>
+
+                              {/* Issue alerts */}
+                              {hasIssues && (
+                                <div className="mb-3 rounded-md border border-red-200 bg-red-50 p-3">
+                                  {changeIssues.map((issue, index) => (
+                                    <div key={index} className="text-sm text-red-800">
+                                      <strong>⚠️ Conflict:</strong> {issue.message}
+                                      {issue.conflictsWith && issue.conflictsWith.length > 0 && (
+                                        <div className="mt-1 text-xs text-red-600">
+                                          Conflicts with: {issue.conflictsWith.join(', ')}
+                                        </div>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* Value comparison */}
+                              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                                {/* Original value */}
+                                <div className="space-y-1">
+                                  <div className="text-xs font-medium tracking-wide text-red-700 uppercase">
+                                    Original
+                                  </div>
+                                  <div className="rounded-md border border-red-200 bg-red-50 p-3">
+                                    <span className="font-mono text-sm text-red-900">
+                                      {formatValue(change.originalValue) || (
+                                        <span className="text-red-400 italic">Empty</span>
+                                      )}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* New value */}
+                                <div className="space-y-1">
+                                  <div className="text-xs font-medium tracking-wide text-green-700 uppercase">
+                                    New
+                                  </div>
+                                  <div
+                                    className={`rounded-md border p-3 ${
+                                      hasIssues
+                                        ? 'border-orange-300 bg-orange-50'
+                                        : 'border-green-200 bg-green-50'
+                                    }`}
+                                  >
+                                    <span
+                                      className={`font-mono text-sm ${
+                                        hasIssues ? 'text-orange-900' : 'text-green-900'
+                                      }`}
+                                    >
+                                      {formatValue(change.newValue) || (
+                                        <span
+                                          className={`italic ${hasIssues ? 'text-orange-400' : 'text-green-400'}`}
+                                        >
+                                          Empty
+                                        </span>
+                                      )}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -251,14 +369,35 @@ const ChangesPreview: React.FC = () => {
                     Close
                   </button>
                   <button
-                    className="rounded-lg border border-blue-600 bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 hover:bg-blue-700"
-                    onClick={() => {
-                      // TODO: Implement save functionality
-                      console.log('Save changes:', cellChanges);
-                      onClose();
-                    }}
+                    onClick={handleSave}
+                    disabled={!canSaveChanges}
+                    className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors duration-150 ${
+                      !canSaveChanges
+                        ? 'cursor-not-allowed border-gray-300 bg-gray-100 text-gray-400'
+                        : 'border-blue-600 bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                    title={
+                      !canSaveChanges
+                        ? 'Resolve validation issues before saving'
+                        : 'Save all changes'
+                    }
                   >
-                    Save Changes
+                    {hasCriticalIssues ? (
+                      <span className="flex items-center space-x-2">
+                        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <span>Cannot Save</span>
+                      </span>
+                    ) : !hasChanges ? (
+                      'No Changes'
+                    ) : (
+                      'Save Changes'
+                    )}
                   </button>
                 </div>
               </div>

@@ -11,7 +11,7 @@ export const CORPUS_COLUMNS: EditableColumn[] = [
     label: 'Entry ID',
     sortable: false,
     filterable: true,
-    editable: false, // Entry ID should not be editable
+    editable: true,
   },
   {
     key: 'word',

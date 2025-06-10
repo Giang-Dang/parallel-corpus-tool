@@ -6,14 +6,20 @@ import { useCallback, useMemo } from 'react';
 import { usePopupContext } from '@/contexts/PopupContext';
 import { PopupType } from '@/types/popup.types';
 
+// Extend SaveButtonState to include validation error
+type ExtendedSaveButtonState = SaveButtonState | 'validation_error';
+
 export default function useFileMenu() {
-  const { isEditMode, hasChangesInDataTable, changesCount } = useAppContext();
+  const { isEditMode, hasChangesInDataTable, changesCount, canSaveChanges, hasValidationIssues } =
+    useAppContext();
   const { openPopup } = usePopupContext();
-  const saveButtonState: SaveButtonState = useMemo(() => {
+
+  const saveButtonState: ExtendedSaveButtonState = useMemo(() => {
     if (!isEditMode || !hasChangesInDataTable) return SaveButtonState.disabled;
+    if (hasChangesInDataTable && hasValidationIssues) return 'validation_error';
     if (hasChangesInDataTable) return SaveButtonState.unsaved;
     return SaveButtonState.exported;
-  }, [isEditMode, hasChangesInDataTable]);
+  }, [isEditMode, hasChangesInDataTable, hasValidationIssues]);
 
   const saveIcon = useMemo(() => {
     if (saveButtonState === SaveButtonState.exported) {
@@ -25,6 +31,18 @@ export default function useFileMenu() {
           viewBox="0 0 24 24"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        </svg>
+      );
+    }
+
+    if (saveButtonState === 'validation_error') {
+      return (
+        <svg className="h-4 w-4 text-white sm:h-5 sm:w-5" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fillRule="evenodd"
+            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+            clipRule="evenodd"
+          />
         </svg>
       );
     }
@@ -60,6 +78,10 @@ export default function useFileMenu() {
         title: 'Saved',
         subtitle: 'Changes exported',
       },
+      validation_error: {
+        title: 'Cannot Save',
+        subtitle: 'Resolve conflicts first',
+      },
     }),
     [isEditMode, changesCount],
   );
@@ -84,6 +106,12 @@ export default function useFileMenu() {
         title: 'text-gray-900',
         subtitle: 'text-emerald-600',
       },
+      validation_error: {
+        container: 'bg-red-50 border border-red-300 cursor-not-allowed opacity-80',
+        icon: 'bg-gradient-to-r from-red-500 to-red-600',
+        title: 'text-red-900',
+        subtitle: 'text-red-600',
+      },
     };
     return styles[saveButtonState];
   }, [saveButtonState]);
@@ -96,7 +124,18 @@ export default function useFileMenu() {
   const handleOpenClick = useCallback(() => {
     openPopup(PopupType.FileLoader);
   }, [openPopup]);
-  const handleSaveClick = useCallback(() => {}, []);
+
+  const handleSaveClick = useCallback(() => {
+    if (!canSaveChanges) {
+      // Optionally show a notification or open changes preview to show issues
+      if (hasValidationIssues) {
+        openPopup(PopupType.ChangesPreview);
+      }
+      return;
+    }
+    // TODO: Implement actual save functionality
+    console.log('Save changes triggered');
+  }, [canSaveChanges, hasValidationIssues, openPopup]);
 
   return {
     saveButtonState,

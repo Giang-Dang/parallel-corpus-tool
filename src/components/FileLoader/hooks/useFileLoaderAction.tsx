@@ -33,6 +33,7 @@ export default function useFileLoaderAction() {
       const lines = text.split('\n'); // Remove trim() and use split directly
       const totalLines = lines.length;
       const rowIdSet = new Set<string>();
+      const duplicateRowIdSet = new Set<string>();
 
       // Pre-compute static values
       const language = file.name.split('.')[0].split('_')[1];
@@ -44,14 +45,12 @@ export default function useFileLoaderAction() {
 
       for (let i = 0; i < totalLines; i++) {
         const line = lines[i];
-        // Fast empty line check
         if (!line || line.length < 10) continue;
 
         // Optimized tab-split with limit
         const columns = line.split('\t', TOTAL_COLUMNS);
         if (columns.length < TOTAL_COLUMNS) continue;
 
-        // Ultra-fast entry creation with minimal operations
         const entryId = columns[0];
         const entry: CorpusEntry = {
           language,
@@ -69,6 +68,10 @@ export default function useFileLoaderAction() {
           semantic: columns[9],
         };
 
+        if (rowIdSet.has(entryId)) {
+          duplicateRowIdSet.add(entryId);
+        }
+
         rowIdSet.add(entryId);
         currentBatch.push(entry);
         processedLines++;
@@ -82,6 +85,11 @@ export default function useFileLoaderAction() {
           });
           currentBatch = [];
         }
+      }
+
+      if (duplicateRowIdSet.size > 0) {
+        setError(`Duplicate entry IDs found: ${Array.from(duplicateRowIdSet).join(', ')}`);
+        return;
       }
 
       // Insert remaining entries

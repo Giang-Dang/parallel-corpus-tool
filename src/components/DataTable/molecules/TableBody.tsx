@@ -43,37 +43,43 @@ export default function TableBody({ entries }: TableBodyProps) {
 
   return (
     <tbody className="divide-y divide-gray-100 bg-white">
-      {entries.map((entry, index) => (
-        <tr
-          key={`${entry.entryId}-${index}`}
-          className={`group transition-all duration-200 hover:bg-blue-50/30 hover:shadow-sm ${
-            index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
-          }`}
-        >
-          {CORPUS_COLUMNS.map((column, colIndex) => {
-            const value = entry[column.key];
-            const isFirstColumn = colIndex === 0;
-            const isImportantColumn = ['word', 'lemma', 'pos'].includes(column.key);
+      {entries.map((entry, index) => {
+        // CRITICAL FIX: Always use the original entryId for change tracking
+        // This ensures multiple edits to entryId column work correctly
+        const originalEntryId = entry.entryId;
 
-            return (
-              <SmartTableCell
-                key={column.key}
-                value={value}
-                rowId={entry.entryId}
-                column={column.key}
-                isEditable={column.editable}
-                className={`px-6 py-4 text-sm transition-colors duration-200 group-hover:text-gray-900 ${
-                  isFirstColumn
-                    ? 'font-semibold text-gray-900'
-                    : isImportantColumn
-                      ? 'font-medium text-gray-800'
-                      : 'text-gray-600'
-                } `}
-              />
-            );
-          })}
-        </tr>
-      ))}
+        return (
+          <tr
+            key={`${originalEntryId}-${index}`}
+            className={`group transition-all duration-200 hover:bg-blue-50/30 hover:shadow-sm ${
+              index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
+            }`}
+          >
+            {CORPUS_COLUMNS.map((column, colIndex) => {
+              const value = entry[column.key];
+              const isFirstColumn = colIndex === 0;
+              const isImportantColumn = ['word', 'lemma', 'pos'].includes(column.key);
+
+              return (
+                <SmartTableCell
+                  key={column.key}
+                  value={value}
+                  rowId={originalEntryId}
+                  column={column.key}
+                  isEditable={column.editable}
+                  className={`px-6 py-4 text-sm transition-colors duration-200 group-hover:text-gray-900 ${
+                    isFirstColumn
+                      ? 'font-semibold text-gray-900'
+                      : isImportantColumn
+                        ? 'font-medium text-gray-800'
+                        : 'text-gray-600'
+                  } `}
+                />
+              );
+            })}
+          </tr>
+        );
+      })}
     </tbody>
   );
 }

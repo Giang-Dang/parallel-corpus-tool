@@ -51,6 +51,12 @@ interface AppContextType {
     column: string,
     originalValue: string | number | Set<number>,
   ) => string | number | Set<number>;
+
+  // Validation state
+  hasValidationIssues: boolean;
+  setHasValidationIssues: (value: boolean) => void;
+  canSaveChanges: boolean;
+  setCanSaveChanges: (value: boolean) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -77,12 +83,23 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [activeEditingCell, setActiveEditingCell] = useState<string | null>(null);
   const [cellChanges, setCellChanges] = useState<Map<string, CellChange>>(new Map());
 
+  // Validation state
+  const [hasValidationIssues, setHasValidationIssues] = useState(false);
+  const [canSaveChanges, setCanSaveChanges] = useState(true);
+
   // Auto-cleanup: when edit mode is disabled, clear active cell
   useEffect(() => {
     if (!isEditMode) {
       setActiveEditingCell(null);
     }
   }, [isEditMode]);
+
+  // Update save capability based on changes and validation
+  useEffect(() => {
+    const hasChanges = changesCount > 0;
+    const noValidationIssues = !hasValidationIssues;
+    setCanSaveChanges(hasChanges && noValidationIssues);
+  }, [changesCount, hasValidationIssues]);
 
   // Memoized update function to prevent unnecessary re-renders
   const updateCellValue = useCallback(
@@ -143,11 +160,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     setChangesCount(0);
     setHasChangesInDataTable(false);
     setActiveEditingCell(null);
+    setHasValidationIssues(false);
   }, []);
 
   // Helper function to get the display value for a cell
   const getCellDisplayValue = useCallback(
     (rowId: string, column: string, originalValue: string | number | Set<number>) => {
+      // Always use the original rowId to construct the change key
+      // This ensures we can find changes even when entryId column is edited multiple times
       const changeKey = `${rowId}-${column}`;
       const change = cellChanges.get(changeKey);
       return change ? change.newValue : originalValue;
@@ -176,6 +196,10 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       revertCellChange,
       clearAllChanges,
       getCellDisplayValue,
+      hasValidationIssues,
+      setHasValidationIssues,
+      canSaveChanges,
+      setCanSaveChanges,
     }),
     [
       isEditMode,
@@ -189,6 +213,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       revertCellChange,
       clearAllChanges,
       getCellDisplayValue,
+      hasValidationIssues,
+      canSaveChanges,
     ],
   );
 

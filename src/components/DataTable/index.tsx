@@ -7,6 +7,7 @@ import LoadingIndicator from './molecules/LoadingIndicator';
 import EditModeIndicator from './molecules/EditModeIndicator';
 import { useTableState } from './hooks/useTableState';
 import { useProcessedData } from './hooks/useProcessedData';
+import { useValidationSync } from '@/hooks/useValidationSync';
 
 export default function DataTable() {
   const [isLoading] = useState(false);
@@ -15,13 +16,16 @@ export default function DataTable() {
 
   const { entries, totalEntries, totalPages } = useProcessedData(state);
 
+  // Enable validation synchronization for edit mode
+  useValidationSync();
+
   return (
     <div className="flex h-full max-w-full flex-col">
       {/* Edit Mode Indicator */}
       <EditModeIndicator />
 
       {/* Main Table Container */}
-      <div className="flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+      <div className="relative flex-1 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
         {/* Language Selector */}
         <LanguageSelector
           selectedLanguage={state.selectedLanguage}

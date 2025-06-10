@@ -65,11 +65,20 @@ const EditableCell = React.memo<EditableCellProps>(
     // Handle save
     const handleSave = useCallback(() => {
       const parsedValue = parseEditValue(editValue);
-      if (parsedValue !== value) {
+      if (parsedValue !== currentDisplayValue) {
         updateCellValue(rowId, column, value, parsedValue);
       }
       onDeactivate();
-    }, [editValue, value, rowId, column, updateCellValue, onDeactivate, parseEditValue]);
+    }, [
+      editValue,
+      currentDisplayValue,
+      rowId,
+      column,
+      updateCellValue,
+      onDeactivate,
+      parseEditValue,
+      value,
+    ]);
 
     // Handle cancel
     const handleCancel = useCallback(() => {
