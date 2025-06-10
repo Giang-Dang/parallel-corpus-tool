@@ -15,7 +15,7 @@ export default function TableHeader({ filters, onFilterChange, onFilterClear }: 
   return (
     <thead className="sticky top-0 z-10 border-b border-blue-400 bg-gray-200">
       <tr>
-        {CORPUS_COLUMNS.map((column) => {
+        {CORPUS_COLUMNS.map((column, columnIndex) => {
           const hasFilter = filters[column.key]?.value;
 
           return (
@@ -35,6 +35,7 @@ export default function TableHeader({ filters, onFilterChange, onFilterClear }: 
                       onFilterChange={onFilterChange}
                       onFilterClear={onFilterClear}
                       hasActiveFilter={!!hasFilter}
+                      columnIndex={columnIndex}
                     />
                   </div>
                 )}

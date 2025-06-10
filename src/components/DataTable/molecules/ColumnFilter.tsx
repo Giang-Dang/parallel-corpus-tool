@@ -7,6 +7,7 @@ interface ColumnFilterProps {
   onFilterChange: (column: string, filter: Partial<ColumnFilterType>) => void;
   onFilterClear: (column: string) => void;
   hasActiveFilter?: boolean;
+  columnIndex?: number;
 }
 
 export default function ColumnFilter({
@@ -15,6 +16,7 @@ export default function ColumnFilter({
   onFilterChange,
   onFilterClear,
   hasActiveFilter,
+  columnIndex = 0,
 }: ColumnFilterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [tempValue, setTempValue] = useState(filter?.value || '');
@@ -23,6 +25,9 @@ export default function ColumnFilter({
   const filterType = filter?.type || FilterType.CONTAIN;
   const matchCase = filter?.matchCase || false;
   const isFiltered = hasActiveFilter || (filter && filter.value);
+
+  const isLeftmostColumn = columnIndex <= 2;
+  const positioningClass = isLeftmostColumn ? 'left-0' : 'right-0';
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -94,7 +99,7 @@ export default function ColumnFilter({
       {isOpen && (
         <div
           ref={dropdownRef}
-          className="absolute top-full right-0 z-50 mt-2 w-80 rounded-xl border border-gray-200 bg-white shadow-xl ring-1 ring-black/5 backdrop-blur-sm"
+          className={`absolute top-full ${positioningClass} z-50 mt-2 w-80 rounded-xl border border-gray-200 bg-white shadow-xl ring-1 ring-black/5 backdrop-blur-sm`}
         >
           <div className="space-y-4 p-5">
             {/* Header */}

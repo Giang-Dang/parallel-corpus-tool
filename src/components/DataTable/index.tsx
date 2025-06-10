@@ -25,14 +25,14 @@ export default function DataTable() {
       <EditModeIndicator />
 
       {/* Main Table Container */}
-      <div className="relative flex-1 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+      <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
         {/* Language Selector */}
         <LanguageSelector
           selectedLanguage={state.selectedLanguage}
           onLanguageChange={setLanguage}
         />
 
-        {/* Table Container */}
+        {/* Table Container - takes remaining space but leaves room for pagination */}
         <div className="relative flex-1 overflow-hidden">
           <div className="scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 h-full overflow-x-auto overflow-y-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -63,15 +63,17 @@ export default function DataTable() {
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-white to-transparent"></div>
         </div>
 
-        {/* Pagination */}
-        <Pagination
-          currentPage={state.currentPage}
-          totalPages={totalPages}
-          itemsPerPage={state.itemsPerPage}
-          totalItems={totalEntries}
-          onPageChange={setPage}
-          onItemsPerPageChange={setItemsPerPage}
-        />
+        {/* Pagination - fixed at bottom */}
+        <div className="flex-shrink-0">
+          <Pagination
+            currentPage={state.currentPage}
+            totalPages={totalPages}
+            itemsPerPage={state.itemsPerPage}
+            totalItems={totalEntries}
+            onPageChange={setPage}
+            onItemsPerPageChange={setItemsPerPage}
+          />
+        </div>
       </div>
     </div>
   );
