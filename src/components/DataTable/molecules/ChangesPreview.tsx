@@ -4,6 +4,8 @@ import { CORPUS_COLUMNS } from '../utils/columnConfig';
 import { usePopupContext } from '@/contexts/PopupContext';
 import { useValidationSync } from '@/hooks/useValidationSync';
 
+import { PopupType } from '@/types/popup.types';
+
 interface ChangeDetail {
   rowId: string;
   column: string;
@@ -13,8 +15,8 @@ interface ChangeDetail {
 }
 
 const ChangesPreview: React.FC = () => {
-  const { cellChanges, revertCellChange, clearAllChanges, canSaveChanges } = useAppContext();
-  const { setIsOpenPopup } = usePopupContext();
+  const { cellChanges, revertCellChange, canSaveChanges } = useAppContext();
+  const { setIsOpenPopup, openPopup } = usePopupContext();
   const { validationIssues, hasCriticalIssues, getChangeIssues } = useValidationSync();
 
   // Group changes by row for better organization
@@ -120,7 +122,7 @@ const ChangesPreview: React.FC = () => {
             <div className="flex items-center space-x-3">
               {hasChanges && (
                 <button
-                  onClick={clearAllChanges}
+                  onClick={() => openPopup(PopupType.ClearAllConfirmation)}
                   className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-700 transition-colors duration-150 hover:border-red-300 hover:bg-red-100"
                 >
                   Clear All
@@ -356,34 +358,45 @@ const ChangesPreview: React.FC = () => {
 
           {/* Footer */}
           {hasChanges && (
-            <div className="rounded-b-2xl border-t border-gray-200 bg-gray-50 px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div className="text-xs text-gray-500">
-                  💡 Tip: Click &ldquo;Revert&rdquo; next to any change to undo it individually
+            <div className="rounded-b-2xl border-t border-gray-200 bg-gradient-to-r from-gray-50 to-slate-50 px-6 py-5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col gap-1">
+                  <div className="text-xs text-gray-500">
+                    💡 Tip: Click &ldquo;Revert&rdquo; next to any change to undo it individually
+                  </div>
+                  <div className="text-xs text-gray-600">
+                    {canSaveChanges
+                      ? `Ready to save ${cellChanges.size} ${cellChanges.size === 1 ? 'change' : 'changes'}`
+                      : hasCriticalIssues
+                        ? 'Resolve validation issues before saving'
+                        : 'Review changes above'}
+                  </div>
                 </div>
-                <div className="flex items-center space-x-3">
+
+                <div className="flex items-center gap-3">
                   <button
                     onClick={onClose}
-                    className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors duration-150 hover:bg-gray-50"
+                    className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-150 hover:bg-gray-50"
                   >
                     Close
                   </button>
+
                   <button
                     onClick={handleSave}
                     disabled={!canSaveChanges}
-                    className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors duration-150 ${
+                    className={`flex items-center gap-2 rounded-lg border px-6 py-2.5 text-sm font-semibold transition-all duration-150 ${
                       !canSaveChanges
                         ? 'cursor-not-allowed border-gray-300 bg-gray-100 text-gray-400'
-                        : 'border-blue-600 bg-blue-600 text-white hover:bg-blue-700'
+                        : 'transform border-blue-600 bg-blue-600 text-white shadow-md hover:scale-[1.02] hover:bg-blue-700 hover:shadow-lg'
                     }`}
                     title={
                       !canSaveChanges
                         ? 'Resolve validation issues before saving'
-                        : 'Save all changes'
+                        : 'Save all changes to file'
                     }
                   >
                     {hasCriticalIssues ? (
-                      <span className="flex items-center space-x-2">
+                      <>
                         <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                           <path
                             fillRule="evenodd"
@@ -392,11 +405,41 @@ const ChangesPreview: React.FC = () => {
                           />
                         </svg>
                         <span>Cannot Save</span>
-                      </span>
+                      </>
                     ) : !hasChanges ? (
-                      'No Changes'
+                      <>
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        <span>No Changes</span>
+                      </>
                     ) : (
-                      'Save Changes'
+                      <>
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12"
+                          />
+                        </svg>
+                        <span>Save Changes ({cellChanges.size})</span>
+                      </>
                     )}
                   </button>
                 </div>

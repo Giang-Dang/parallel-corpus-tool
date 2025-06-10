@@ -2,8 +2,7 @@ import React from 'react';
 import { useAppContext } from '@/contexts/AppContext';
 
 const EditModeIndicator: React.FC = () => {
-  const { isEditMode, changesCount, hasChangesInDataTable, clearAllChanges, activeEditingCell } =
-    useAppContext();
+  const { isEditMode, changesCount, hasChangesInDataTable, activeEditingCell } = useAppContext();
 
   // Don't render if not in edit mode
   if (!isEditMode) {
@@ -43,32 +42,8 @@ const EditModeIndicator: React.FC = () => {
       <div className="flex items-center space-x-3">
         {/* Help text */}
         <span className="hidden text-xs text-blue-600 sm:block">
-          Click any cell to edit • Press Enter to save • Esc to cancel
+          Click any cell to edit • Esc to cancel
         </span>
-
-        {/* Clear changes button */}
-        {hasChangesInDataTable && (
-          <button
-            onClick={clearAllChanges}
-            className="rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition-all duration-150 hover:border-red-300 hover:bg-red-100 focus:ring-2 focus:ring-red-500/20 focus:outline-none"
-            title="Clear all changes"
-          >
-            Clear All ({changesCount})
-          </button>
-        )}
-
-        {/* Save indicator */}
-        {hasChangesInDataTable ? (
-          <div className="flex items-center space-x-2 text-xs text-yellow-700">
-            <span>●</span>
-            <span>Unsaved</span>
-          </div>
-        ) : (
-          <div className="flex items-center space-x-2 text-xs text-green-700">
-            <span>✓</span>
-            <span>All saved</span>
-          </div>
-        )}
       </div>
     </div>
   );

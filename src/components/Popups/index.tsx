@@ -3,6 +3,7 @@
 import { usePopupContext } from '@/contexts/PopupContext';
 import FileLoader from '../FileLoader';
 import ChangesPreview from '../DataTable/molecules/ChangesPreview';
+import ClearAllConfirmationModal from '../DataTable/molecules/ClearAllConfirmationModal';
 import { PopupType } from '../../types/popup.types';
 
 export default function Popups() {
@@ -14,6 +15,7 @@ export default function Popups() {
     <>
       {currentPopup === PopupType.FileLoader && <FileLoader />}
       {currentPopup === PopupType.ChangesPreview && <ChangesPreview />}
+      {currentPopup === PopupType.ClearAllConfirmation && <ClearAllConfirmationModal />}
     </>
   );
 }

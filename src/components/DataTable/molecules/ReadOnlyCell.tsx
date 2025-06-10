@@ -23,7 +23,7 @@ const ReadOnlyCell = React.memo<ReadOnlyCellProps>(
     return (
       <div
         onClick={isEditable ? onClick : undefined}
-        className={`group relative px-3 py-2 text-sm transition-all duration-150 ${isEditable ? 'cursor-pointer hover:bg-blue-50/70 hover:ring-1 hover:ring-blue-200/50' : 'cursor-default'} ${hasChanges ? 'border-l-3 border-yellow-400 bg-yellow-50/80 font-medium text-yellow-900' : ''} ${className} `}
+        className={`group relative px-3 py-2 text-sm transition-all duration-150 ${isEditable ? 'cursor-pointer hover:bg-blue-50/70 hover:ring-1 hover:ring-blue-200/50' : 'cursor-default'} ${hasChanges ? 'border-r-3 border-l-3 border-yellow-400 bg-yellow-200/80 font-medium text-yellow-900' : ''} ${className} `}
         title={isEditable ? 'Click to edit' : displayValue}
       >
         <div className="flex items-center justify-between">
