@@ -101,6 +101,7 @@ export default function useFileLoaderAction() {
   const processFiles = useCallback(
     async (files: File[]): Promise<void> => {
       try {
+        setShowLanguageConfirmation(false);
         setIsLoading(true);
         setError(null);
 
@@ -157,15 +158,11 @@ export default function useFileLoaderAction() {
 
       // Multiple files - validate language patterns
       const languageFiles = parseLanguageFiles(textFiles);
-      const invalidFiles = textFiles.filter((_, index) => languageFiles[index] === null);
+      const hasInvalidFiles = languageFiles?.[0]?.baseName !== languageFiles?.[1]?.baseName;
 
-      console.log('languageFiles', languageFiles);
-      console.log('invalidFiles', invalidFiles);
-
-      if (invalidFiles.length > 0) {
-        const invalidFileNames = invalidFiles.map((f) => f.name).join(', ');
+      if (hasInvalidFiles) {
         setError(
-          `Invalid file naming: ${invalidFileNames}. Use pattern: name_language.txt (e.g., corpus_en.txt, corpus_vn.txt)`,
+          `Invalid file naming: ${languageFiles?.[0]?.file.name} does not match pattern from file ${languageFiles?.[1]?.file.name}. Use pattern: name_language.txt (e.g., corpus_en.txt, corpus_vn.txt)`,
         );
         return;
       }
@@ -218,12 +215,11 @@ export default function useFileLoaderAction() {
 
     // Multiple files - validate language patterns
     const languageFiles = parseLanguageFiles(textFiles);
-    const invalidFiles = textFiles.filter((_, index) => languageFiles[index] === null);
+    const hasInvalidFiles = languageFiles?.[0]?.baseName !== languageFiles?.[1]?.baseName;
 
-    if (invalidFiles.length > 0) {
-      const invalidFileNames = invalidFiles.map((f) => f.name).join(', ');
+    if (hasInvalidFiles) {
       setError(
-        `Invalid file naming: ${invalidFileNames}. Use pattern: name_language.txt (e.g., corpus_en.txt, corpus_vn.txt)`,
+        `Invalid file naming: ${languageFiles?.[0]?.file.name} does not match pattern from file ${languageFiles?.[1]?.file.name}. Use pattern: name_language.txt (e.g., corpus_en.txt, corpus_vn.txt)`,
       );
       return;
     }
