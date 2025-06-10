@@ -12,15 +12,15 @@ export default function useFileLoaderAction() {
   const [progressedLines, setProgressedLines] = useState(0);
   const [totalLines, setTotalLines] = useState(0);
 
-  const { setIsOpen, closePopup } = usePopupContext();
+  const { setIsOpenPopup, closePopup } = usePopupContext();
   const { setSelectedFileGroup } = useAppContext();
   const { setCorpusEntries, setFileEntries } = useDatabaseInMemoryContext();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const onClose = useCallback(() => {
-    setIsOpen(false);
-  }, [setIsOpen]);
+    setIsOpenPopup(false);
+  }, [setIsOpenPopup]);
 
   const processFileInChunks = useCallback(
     async (file: File): Promise<void> => {

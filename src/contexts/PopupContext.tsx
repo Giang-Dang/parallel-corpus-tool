@@ -3,8 +3,8 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 interface PopupContextType {
-  isOpen: boolean;
-  setIsOpen: (value: boolean) => void;
+  isOpenPopup: boolean;
+  setIsOpenPopup: (value: boolean) => void;
   currentPopup: string;
   setCurrentPopup: (value: string) => void;
   closePopup: () => void;
@@ -22,29 +22,29 @@ export const usePopupContext = () => {
 };
 
 export const PopupContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenPopup, setIsOpenPopup] = useState(false);
   const [currentPopup, setCurrentPopup] = useState('');
 
   const closePopup = useCallback(() => {
-    setIsOpen(false);
+    setIsOpenPopup(false);
     setCurrentPopup('');
   }, []);
 
   const openPopup = useCallback((popup: string) => {
-    setIsOpen(true);
+    setIsOpenPopup(true);
     setCurrentPopup(popup);
   }, []);
 
   const value: PopupContextType = useMemo(
     () => ({
-      isOpen,
-      setIsOpen,
+      isOpenPopup,
+      setIsOpenPopup,
       currentPopup,
       setCurrentPopup,
       closePopup,
       openPopup,
     }),
-    [isOpen, currentPopup, closePopup, openPopup],
+    [isOpenPopup, currentPopup, closePopup, openPopup],
   );
 
   return <PopupContext.Provider value={value}>{children}</PopupContext.Provider>;

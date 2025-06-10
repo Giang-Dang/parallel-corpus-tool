@@ -2,11 +2,18 @@
 
 import { usePopupContext } from '@/contexts/PopupContext';
 import FileLoader from '../FileLoader';
+import ChangesPreview from '../DataTable/molecules/ChangesPreview';
+import { PopupType } from '../../types/popup.types';
 
 export default function Popups() {
-  const { isOpen, currentPopup } = usePopupContext();
+  const { isOpenPopup, currentPopup } = usePopupContext();
 
-  if (!isOpen) return null;
+  if (!isOpenPopup) return null;
 
-  return <>{currentPopup === 'fileLoader' && <FileLoader />}</>;
+  return (
+    <>
+      {currentPopup === PopupType.FileLoader && <FileLoader />}
+      {currentPopup === PopupType.ChangesPreview && <ChangesPreview />}
+    </>
+  );
 }

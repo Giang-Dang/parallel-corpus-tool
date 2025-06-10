@@ -4,6 +4,7 @@ import { SaveButtonState } from '@/types/ui.types';
 import { useAppContext } from '@/contexts/AppContext';
 import { useCallback, useMemo } from 'react';
 import { usePopupContext } from '@/contexts/PopupContext';
+import { PopupType } from '@/types/popup.types';
 
 export default function useFileMenu() {
   const { isEditMode, hasChangesInDataTable, changesCount } = useAppContext();
@@ -93,7 +94,7 @@ export default function useFileMenu() {
   );
 
   const handleOpenClick = useCallback(() => {
-    openPopup('fileLoader');
+    openPopup(PopupType.FileLoader);
   }, [openPopup]);
   const handleSaveClick = useCallback(() => {}, []);
 

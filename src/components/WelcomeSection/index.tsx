@@ -1,11 +1,12 @@
 import { usePopupContext } from '@/contexts/PopupContext';
 import { useCallback } from 'react';
+import { PopupType } from '../../types/popup.types';
 
 export default function WelcomeSection() {
   const { openPopup } = usePopupContext();
 
   const onLoadFileClick = useCallback(() => {
-    openPopup('fileLoader');
+    openPopup(PopupType.FileLoader);
   }, [openPopup]);
 
   return (
