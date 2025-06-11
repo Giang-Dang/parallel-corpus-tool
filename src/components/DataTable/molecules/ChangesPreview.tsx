@@ -1,8 +1,15 @@
 import React, { useCallback, useMemo } from 'react';
 import { useAppContext } from '@/contexts/AppContext';
+import { useDatabaseInMemoryContext } from '@/contexts/DatabaseInMemoryContext';
 import { CORPUS_COLUMNS } from '../utils/columnConfig';
 import { usePopupContext } from '@/contexts/PopupContext';
 import { useValidationSync } from '@/hooks/useValidationSync';
+import {
+  applyChangesToEntries,
+  generateTxtContent,
+  downloadFile,
+  generateFilename,
+} from '@/utils/fileDownload';
 
 import { PopupType } from '@/types/popup.types';
 
@@ -15,7 +22,9 @@ interface ChangeDetail {
 }
 
 const ChangesPreview: React.FC = () => {
-  const { cellChanges, revertCellChange, canSaveChanges } = useAppContext();
+  const { cellChanges, revertCellChange, canSaveChanges, clearAllChanges, selectedFileGroup } =
+    useAppContext();
+  const { corpusEntries, setCorpusEntries } = useDatabaseInMemoryContext();
   const { setIsOpenPopup, openPopup } = usePopupContext();
   const { validationIssues, hasCriticalIssues, getChangeIssues } = useValidationSync();
 
@@ -64,20 +73,48 @@ const ChangesPreview: React.FC = () => {
 
   const hasChanges = useMemo(() => Object.keys(changesByRow).length > 0, [changesByRow]);
 
+  // Determine current language from changed entries
+  const currentLanguage = useMemo(() => {
+    if (cellChanges.size === 0) return '';
+
+    // Find the first changed entry to get its language
+    const firstChange = Array.from(cellChanges.values())[0];
+    const entry = corpusEntries.find((e) => e.entryId === firstChange.rowId);
+    return entry?.language || '';
+  }, [cellChanges, corpusEntries]);
+
   const onClose = useCallback(() => {
     setIsOpenPopup(false);
   }, [setIsOpenPopup]);
 
   // Save functionality with validation
   const handleSave = useCallback(() => {
-    if (!canSaveChanges) {
+    if (!canSaveChanges || !currentLanguage) {
       return; // Prevent save when there are critical issues or no changes
     }
 
-    // TODO: Implement save functionality
-    console.log('Save changes:', cellChanges);
+    // Apply changes to corpus entries
+    const updatedEntries = applyChangesToEntries(corpusEntries, cellChanges);
+    setCorpusEntries(updatedEntries);
+
+    // Generate and download file
+    const fileContent = generateTxtContent(updatedEntries, currentLanguage);
+    const filename = generateFilename(selectedFileGroup.baseName, currentLanguage);
+    downloadFile(fileContent, filename);
+
+    // Clean up
+    clearAllChanges();
     onClose();
-  }, [canSaveChanges, cellChanges, onClose]);
+  }, [
+    canSaveChanges,
+    currentLanguage,
+    corpusEntries,
+    cellChanges,
+    setCorpusEntries,
+    selectedFileGroup.baseName,
+    clearAllChanges,
+    onClose,
+  ]);
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">

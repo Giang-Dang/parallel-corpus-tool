@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import LanguageSelector from './molecules/LanguageSelector';
 import TableHeader from './molecules/TableHeader';
 import TableBody from './molecules/TableBody';
@@ -8,16 +8,26 @@ import EditModeIndicator from './molecules/EditModeIndicator';
 import { useTableState } from './hooks/useTableState';
 import { useProcessedData } from './hooks/useProcessedData';
 import { useValidationSync } from '@/hooks/useValidationSync';
+import { useDatabaseInMemoryContext } from '@/contexts/DatabaseInMemoryContext';
 
 export default function DataTable() {
   const [isLoading] = useState(false);
   const { state, updateFilter, clearFilter, setLanguage, setPage, setItemsPerPage } =
     useTableState();
+  const { fileEntries } = useDatabaseInMemoryContext();
 
   const { entries, totalEntries, totalPages } = useProcessedData(state);
 
   // Enable validation synchronization for edit mode
   useValidationSync();
+
+  // Auto-select first available language when files are loaded
+  useEffect(() => {
+    if (fileEntries.length > 0 && !state.selectedLanguage) {
+      const firstLanguage = fileEntries[0].language;
+      setLanguage(firstLanguage);
+    }
+  }, [fileEntries, state.selectedLanguage, setLanguage]);
 
   return (
     <div className="flex h-full max-w-full flex-col">
