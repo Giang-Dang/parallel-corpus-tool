@@ -134,7 +134,7 @@ const EditableCell = React.memo<EditableCellProps>(
           onChange={handleChange}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className="w-full rounded-md border-2 border-blue-500 bg-white px-3 py-2 text-sm shadow-md transition-all duration-150 focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+          className="w-fit rounded-md border-2 border-blue-500 bg-white px-3 py-2 text-sm shadow-md transition-all duration-150 focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
           placeholder="Enter value..."
         />
 

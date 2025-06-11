@@ -2,7 +2,7 @@ import React from 'react';
 import { useAppContext } from '@/contexts/AppContext';
 
 const EditModeIndicator: React.FC = () => {
-  const { isEditMode, changesCount, hasChangesInDataTable, activeEditingCell } = useAppContext();
+  const { isEditMode, changesCount, hasChangesInDataTable } = useAppContext();
 
   // Don't render if not in edit mode
   if (!isEditMode) {
@@ -19,14 +19,6 @@ const EditModeIndicator: React.FC = () => {
           <span className="text-sm font-medium text-blue-800">Edit Mode Active</span>
         </div>
 
-        {/* Currently editing indicator */}
-        {activeEditingCell && (
-          <div className="flex items-center space-x-2 text-xs text-blue-600">
-            <span>✏️</span>
-            <span>Editing cell</span>
-          </div>
-        )}
-
         {/* Changes counter */}
         <div className="flex items-center space-x-2">
           <span className="text-sm text-blue-700">
@@ -40,9 +32,8 @@ const EditModeIndicator: React.FC = () => {
 
       {/* Action buttons */}
       <div className="flex items-center space-x-3">
-        {/* Help text */}
         <span className="hidden text-xs text-blue-600 sm:block">
-          Click any cell to edit • Esc to cancel
+          Double click any cell to edit • Esc to cancel
         </span>
       </div>
     </div>

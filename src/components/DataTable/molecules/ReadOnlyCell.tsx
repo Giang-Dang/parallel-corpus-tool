@@ -4,12 +4,12 @@ interface ReadOnlyCellProps {
   value: string | number | Set<number>;
   hasChanges: boolean;
   isEditable: boolean;
-  onClick?: () => void;
+  onDoubleClick?: () => void;
   className?: string;
 }
 
 const ReadOnlyCell = React.memo<ReadOnlyCellProps>(
-  ({ value, hasChanges, isEditable, onClick, className = '' }) => {
+  ({ value, hasChanges, isEditable, onDoubleClick, className = '' }) => {
     // Handle display value formatting
     const getDisplayValue = (): string => {
       if (value instanceof Set) {
@@ -22,7 +22,7 @@ const ReadOnlyCell = React.memo<ReadOnlyCellProps>(
 
     return (
       <div
-        onClick={isEditable ? onClick : undefined}
+        onDoubleClick={isEditable ? onDoubleClick : undefined}
         className={`group relative px-3 py-2 text-sm transition-all duration-150 ${isEditable ? 'cursor-pointer hover:bg-blue-50/70 hover:ring-1 hover:ring-blue-200/50' : 'cursor-default'} ${hasChanges ? 'border-r-3 border-l-3 border-yellow-400 bg-yellow-200/80 font-medium text-yellow-900' : ''} ${className} `}
         title={isEditable ? 'Click to edit' : displayValue}
       >

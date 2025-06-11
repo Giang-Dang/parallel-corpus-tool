@@ -27,7 +27,7 @@ const SmartTableCell = React.memo<SmartTableCellProps>(
     const displayValue = getCellDisplayValue(rowId, column, value);
 
     // Handle cell activation (click to edit)
-    const handleCellClick = useCallback(() => {
+    const handleCellDoubleClick = useCallback(() => {
       if (isEditMode && isEditable && !isCurrentlyEditing) {
         // Close any other editing cell and activate this one
         setActiveEditingCell(cellKey);
@@ -39,7 +39,7 @@ const SmartTableCell = React.memo<SmartTableCellProps>(
       setActiveEditingCell(null);
     }, [setActiveEditingCell]);
 
-    // 🔥 KEY OPTIMIZATION: Only render EditableCell when actively editing
+    // Only render EditableCell when actively editing
     if (isCurrentlyEditing) {
       return (
         <td className={`border-r border-gray-100 last:border-r-0 ${className}`}>
@@ -61,7 +61,7 @@ const SmartTableCell = React.memo<SmartTableCellProps>(
           value={displayValue}
           hasChanges={hasChanges}
           isEditable={isEditMode && isEditable}
-          onClick={handleCellClick}
+          onDoubleClick={handleCellDoubleClick}
         />
       </td>
     );
